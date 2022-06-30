@@ -1,0 +1,10 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+
+which gencode >&/dev/null
+if [[ $? -eq 0 ]];then
+    GENCODEPATH=`dirname $(readlink $(which gencode))`
+else
+    GENCODEPATH=`pwd`
+fi
+python3 $GENCODEPATH/gencode.py $1

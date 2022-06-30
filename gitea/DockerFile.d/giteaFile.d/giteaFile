@@ -1,0 +1,13 @@
+FROM alpine
+EXPOSE 22 3000
+ADD ./s6 /etc/s6
+ADD ./entrypoint /usr/bin/entrypoint
+RUN apk --no-cache add bash ca-certificates curl gettext git linux-pam openssh s6 sqlite su-exec tzdata
+RUN addgroup -S -g 1000 git && adduser -S -H -D -h /data/git -s /bin/bash -u 1000 -G git git && echo "git:$(dd if=/dev/urandom bs=24 count=1 status=none | base64)" | chpasswd
+
+ENV USER=git
+ENV GITEA_CUSTOM=/data/gitea
+VOLUME /data
+ADD ./gitea /app/gitea/gitea
+RUN ln -s /app/gitea/gitea /usr/local/bin/gitea
+ENTRYPOINT ["/usr/bin/entrypoint"]
