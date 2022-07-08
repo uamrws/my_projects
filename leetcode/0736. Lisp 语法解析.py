@@ -19,63 +19,79 @@ from collections import ChainMap
 
 
 class Solution:
-    def evaluate(self, expression: str) -> int:
-        ans = 0
-        global_map = ChainMap()
-        n = len(expression)
-        idx = 0
-        while idx < len(expression):
-            item = expression[idx]
-            if item == " ":
-                idx += 1
-                continue
-            elif item == "(":
-                if global_map:
-                    if global_map["action"] == "let":
-                        stack = global_map["stack"]
-                        while len(stack) > 2:
-                            global_map[stack.pop(0)] = stack.pop(1)
-                global_map = global_map.new_child({})
-                global_map.update({"stack": []})
-            elif item == ")":
-                action = global_map["action"]
-                stack = global_map["stack"]
-                if action == "mult":
-                    val = 1
-                    for i in stack:
-                        if isinstance(i, int):
-                            val *= i
-                        else:
-                            val *= int(global_map[i])
-                    global_map.parents["stack"].append(val)
-                elif action == "add":
-                    val = 0
-                    for i in stack:
-                        if isinstance(i, int):
-                            val += i
-                        else:
-                            val += int(global_map[i])
-                    global_map.parents["stack"].append(val)
-                else:
-                    if not global_map.parents:
-                        return stack[-1]
-                    global_map.parents["stack"].append(stack[-1])
-                global_map = global_map.parents
-            else:
-                for i in range(idx + 1, n):
-                    if expression[i] in [" ", ")"]:
-                        item = expression[idx:i]
-                        break
-                if item in ["let", "add", "mult"]:
-                    global_map["action"] = item
-                else:
-                    stack = global_map["stack"]
-                    stack.append(item)
+    global_map = ChainMap()
 
-            idx += len(item)
+    def evaluate(self, expression: str) -> int:
+        stack = []
+        action = None
+        local = {"stack": stack, "action": action}
+        self.global_map = self.global_map.new_child(local)
+        idx = 0
+        n = len(expression)
+        while idx < n:
+            if action == "let" and len(stack) >= 2:
+                val = stack.pop(1)
+                if isinstance(val, int):
+                    self.global_map[stack.pop(0)] = val
+                else:
+                    self.global_map[stack.pop(0)] = self.global_map[val]
+
+            expr = expression[idx]
+            if expr not in [" "]:
+                if expr == "(":
+                    m = 1
+                    for i in range(idx + 1, n):
+                        if expression[i] == "(":
+                            m += 1
+                        elif expression[i] == ")":
+                            m -= 1
+                        if m == 0:
+                            expr = expression[idx + 1:i + 1]
+                            idx += 1
+                            break
+                    stack.append(self.evaluate(expr))
+                elif expr == ")":
+                    break
+                else:
+                    for i in range(idx + 1, n):
+                        if expression[i] in [" ", ")"]:
+                            expr = expression[idx:i]
+                            break
+                    if expr in ["let", "add", "mult"]:
+                        local["action"] = action = expr
+                    else:
+                        try:
+                            val = int(expr)
+                        except ValueError:
+                            val = expr
+                        stack.append(val)
+            idx += len(expr)
+        ans = 0
+
+        if action == "add":
+            for i in stack:
+                if isinstance(i, int):
+                    ans += i
+                else:
+                    ans += self.global_map[i]
+        elif action == "mult":
+            ans += 1
+            for i in stack:
+                if isinstance(i, int):
+                    ans *= i
+                else:
+                    ans *= self.global_map[i]
+        else:
+            ans = stack[-1]
+            if not isinstance(ans, int):
+                ans = self.global_map[ans]
+        self.global_map = self.global_map.parents
+        return ans
 
 
 if __name__ == '__main__':
     s = Solution()
     print(s.evaluate("(let x 2 (mult x (let x 3 y 4 (add x y))))"))
-    # print(s.evaluate("(let x 1 y 2 x (add x y) (add x y))"))
+    print(s.evaluate("(let x 1 y 2 x (add x y) (add x y))"))
+    print(s.evaluate("(let x 3 x 2 x)"))
+    print(s.evaluate("(add 1 2)"))
