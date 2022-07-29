@@ -9,9 +9,34 @@
 链接：https://leetcode.cn/problems/valid-square
 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 """
-from typing import List
+from typing import List, Tuple
 
 
+class Solution:
+    def validSquare(self, p1: List[int], p2: List[int], p3: List[int], p4: List[int]) -> bool:
+
+        p1_p2__2 = (p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2
+        p1_p3__2 = (p1[0] - p3[0]) ** 2 + (p1[1] - p3[1]) ** 2
+        p1_p4__2 = (p1[0] - p4[0]) ** 2 + (p1[1] - p4[1]) ** 2
+
+        if p1_p2__2 == p1_p3__2 and (p1_p2__2 + p1_p3__2) == p1_p4__2 and p2 != p3 and p1 != p4:
+            return p1_p2__2 == ((p4[0] - p2[0]) ** 2 + (p4[1] - p2[1]) ** 2) == (
+                        (p4[0] - p3[0]) ** 2 + (p4[1] - p3[1]) ** 2)
+        elif p1_p2__2 == p1_p4__2 and (p1_p2__2 + p1_p4__2) == p1_p3__2 and p2 != p4 and p1 != p3:
+            return p1_p2__2 == ((p3[0] - p2[0]) ** 2 + (p3[1] - p2[1]) ** 2) == (
+                        (p4[0] - p3[0]) ** 2 + (p4[1] - p3[1]) ** 2)
+        elif p1_p3__2 == p1_p4__2 and (p1_p3__2 + p1_p4__2) == p1_p2__2 and p3 != p4 and p1 != p2:
+            return p1_p3__2 == ((p3[0] - p2[0]) ** 2 + (p3[1] - p2[1]) ** 2) == (
+                        (p4[0] - p2[0]) ** 2 + (p4[1] - p2[1]) ** 2)
+        else:
+            return False
+
+
+# 答案
+# 作者：LeetCode-Solution
+# 链接：https://leetcode.cn/problems/valid-square/solution/you-xiao-de-zheng-fang-xing-by-leetcode-94t5m/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 def checkLength(v1: Tuple[int, int], v2: Tuple[int, int]) -> bool:
     return v1[0] * v1[0] + v1[1] * v1[1] == v2[0] * v2[0] + v2[1] * v2[1]
 
@@ -45,12 +70,6 @@ class Solution:
         if help(p1, p4, p2, p3):
             return True
         return False
-
-
-# 作者：LeetCode-Solution
-# 链接：https://leetcode.cn/problems/valid-square/solution/you-xiao-de-zheng-fang-xing-by-leetcode-94t5m/
-# 来源：力扣（LeetCode）
-# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 
 if __name__ == '__main__':
