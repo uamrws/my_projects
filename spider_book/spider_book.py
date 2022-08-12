@@ -48,7 +48,7 @@ async def get_book_info(client, baseurl, book_type, book_name, book_author):
         url_list = ' ， '.join([i.get('href') for i in content])
         with open('book_info.tsv', 'a') as f:
             f.write('\t'.join([
-                down_id, book_name, book_author, book_type,
+                down_id, book_name, book_author.replace(" ", ""), book_type,
                 best_, worst_, url_list
             ]) + '\n')
     else:
@@ -113,6 +113,7 @@ async def get_menu(client):
         ]
         await asyncio.gather(*cors)
     else:
+        print(resp)
         await get_menu(client)
 
 
